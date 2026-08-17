@@ -1,144 +1,192 @@
 <template>
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Hero -->
-    <div class="text-center mb-10 animate-fade-in">
-      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">
-        <span class="text-gradient">Skill Path Finder</span>
-      </h1>
-      <p class="text-surface-400 max-w-xl mx-auto">
-        Select skills you know, then discover which roles you're closest to qualifying for.
-      </p>
-    </div>
-
-    <!-- Loading state -->
-    <div v-if="loading" class="space-y-4">
-      <div class="glass-card p-6">
-        <div class="skeleton h-6 w-48 mb-4" />
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          <div v-for="i in 12" :key="i" class="skeleton h-8 rounded-full" />
-        </div>
-      </div>
-    </div>
-
-    <!-- Error state -->
-    <div v-else-if="error" class="glass-card p-8 text-center">
-      <div class="w-14 h-14 rounded-2xl bg-red-500/20 flex items-center justify-center mx-auto mb-4">
-        <svg class="w-7 h-7 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-        </svg>
-      </div>
-      <h3 class="font-semibold text-surface-200 mb-2">Unable to load skills</h3>
-      <p class="text-sm text-surface-400 mb-4">{{ error }}</p>
-      <button class="btn-primary" @click="loadSkills">Try Again</button>
-    </div>
-
-    <!-- Main content -->
-    <div v-else class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-      <!-- Left: Skill Picker -->
-      <div class="lg:col-span-4">
-        <div class="glass-card p-5 sticky top-24">
-          <div class="flex items-center justify-between mb-4">
-            <div>
-              <h2 class="section-title">Your Skills</h2>
-              <p class="section-subtitle mt-0.5">
-                {{ selectedSkills.length }} selected
-              </p>
-            </div>
-            <button
-              v-if="selectedSkills.length > 0"
-              class="text-xs text-surface-500 hover:text-surface-300 transition-colors"
-              @click="selectedSkills = []"
-            >
-              Clear all
-            </button>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <!-- Hero / Ambient Transit Map Diagram -->
+    <div class="transit-card p-6 md:p-8 relative overflow-hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <!-- Hero Text -->
+        <div class="lg:col-span-7 space-y-4">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-transit-gold/10 border border-transit-gold/30 text-transit-gold font-mono text-xs">
+            <span class="w-2 h-2 rounded-full bg-transit-gold animate-pulse"></span>
+            TRANSIT GRAPH ROUTER v2.0
           </div>
-
-          <SkillPicker
-            v-model="selectedSkills"
-            :grouped-skills="skillCategories"
-          />
-
-          <!-- Find roles button -->
-          <button
-            class="btn-primary w-full mt-5"
-            :disabled="selectedSkills.length === 0 || matchLoading"
-            @click="findMatchedRoles"
-          >
-            <svg v-if="matchLoading" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-            </svg>
-            <span v-if="matchLoading">Finding roles...</span>
-            <span v-else>Find Matching Roles →</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Right: Matched Roles -->
-      <div class="lg:col-span-8">
-        <!-- Empty state: no skills selected -->
-        <div
-          v-if="selectedSkills.length === 0 && !matchedRoles"
-          class="glass-card p-12 text-center"
-        >
-          <div class="w-16 h-16 rounded-2xl bg-primary-500/10 flex items-center justify-center mx-auto mb-5">
-            <svg class="w-8 h-8 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-            </svg>
-          </div>
-          <h3 class="font-semibold text-surface-200 text-lg mb-2">Select your skills</h3>
-          <p class="text-sm text-surface-400 max-w-sm mx-auto">
-            Pick the skills you already know from the panel on the left, then click "Find Matching Roles" to see which positions you're closest to.
+          <h1 class="font-display font-extrabold text-3xl sm:text-4xl lg:text-5xl text-transit-text tracking-tight leading-tight">
+            Navigate Your Technical Career Path.
+          </h1>
+          <p class="text-transit-muted text-sm sm:text-base leading-relaxed max-w-xl">
+            Select the skills you know on the station picker. Our graph algorithm calculates shortest learning routes and departure-board role readiness across the network.
           </p>
         </div>
 
-        <!-- Loading matched roles -->
-        <div v-else-if="matchLoading" class="space-y-4">
-          <div v-for="i in 3" :key="i" class="glass-card p-6">
-            <div class="flex items-start justify-between mb-3">
-              <div class="skeleton h-5 w-48" />
-              <div class="skeleton h-8 w-16 rounded-xl" />
+        <!-- Ambient Animated Transit Line Diagram -->
+        <div class="lg:col-span-5 relative h-48 sm:h-56 bg-ink/60 rounded-xl border border-surface-border p-4 flex items-center justify-center overflow-hidden">
+          <!-- Background Grid Lines -->
+          <div class="absolute inset-0 opacity-10 bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:20px_20px]" />
+
+          <!-- Interactive Ambient Network Canvas SVG -->
+          <svg class="w-full h-full" viewBox="0 0 320 180" fill="none">
+            <!-- Animated Transit Lines -->
+            <path d="M 40 140 L 100 80 L 220 80 L 280 40" stroke="#5AC8FA" stroke-width="4" stroke-linecap="round" class="transit-line-path" />
+            <path d="M 40 40 L 100 80 L 160 140 L 280 140" stroke="#34D399" stroke-width="4" stroke-linecap="round" class="transit-line-path" style="animation-delay: 0.3s" />
+            <path d="M 160 140 L 220 80 L 280 140" stroke="#A78BFA" stroke-width="3" stroke-dasharray="5 4" stroke-linecap="round" class="animate-dash" />
+
+            <!-- Ambient Stations -->
+            <g class="animate-pulse-subtle">
+              <circle cx="40" cy="140" r="7" fill="#12141C" stroke="#5AC8FA" stroke-width="3" />
+              <text x="40" y="160" text-anchor="middle" fill="#8B8FA3" font-family="IBM Plex Mono" font-size="9">HTML</text>
+
+              <circle cx="100" cy="80" r="9" fill="#12141C" stroke="#F2B84B" stroke-width="4" />
+              <text x="100" y="65" text-anchor="middle" fill="#F2B84B" font-family="IBM Plex Mono" font-size="10" font-weight="bold">JS INTERCHANGE</text>
+
+              <circle cx="220" cy="80" r="8" fill="#12141C" stroke="#34D399" stroke-width="3" />
+              <text x="220" y="65" text-anchor="middle" fill="#8B8FA3" font-family="IBM Plex Mono" font-size="9">NODE</text>
+
+              <circle cx="280" cy="40" r="8" fill="#12141C" stroke="#A78BFA" stroke-width="3" />
+              <text x="280" y="25" text-anchor="middle" fill="#8B8FA3" font-family="IBM Plex Mono" font-size="9">K8S</text>
+
+              <circle cx="160" cy="140" r="7" fill="#12141C" stroke="#F472B6" stroke-width="3" />
+              <text x="160" y="160" text-anchor="middle" fill="#8B8FA3" font-family="IBM Plex Mono" font-size="9">DATA</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Dashboard Grid: Skill Station Picker & Departure Board -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <!-- Left: Station Picker -->
+      <div class="lg:col-span-4 space-y-4">
+        <div class="transit-card p-5 sticky top-20 flex flex-col max-h-[calc(100vh-6rem)]">
+          <!-- Station Picker Header -->
+          <div class="flex items-center justify-between border-b border-surface-border pb-3 shrink-0">
+            <div>
+              <h2 class="font-display font-bold text-lg text-transit-text tracking-tight flex items-center gap-2">
+                Station Picker
+                <span class="text-xs font-mono font-semibold bg-transit-gold/20 text-transit-gold px-2 py-0.5 rounded border border-transit-gold/30">
+                  {{ selectedSkills.length }} Selected
+                </span>
+              </h2>
+              <p class="font-mono text-xs text-transit-muted mt-0.5">
+                Toggle stations to compute role readiness
+              </p>
             </div>
-            <div class="skeleton h-2 w-full rounded-full mb-3" />
-            <div class="flex gap-2">
-              <div v-for="j in 4" :key="j" class="skeleton h-6 w-20 rounded-full" />
+            <div class="flex items-center gap-2">
+              <button
+                v-if="selectedSkills.length > 0"
+                class="btn-transit-secondary text-xs px-2.5 py-1"
+                @click="selectedSkills = []"
+              >
+                Clear
+              </button>
+              <!-- Mobile collapse toggle button -->
+              <button
+                class="lg:hidden p-1.5 rounded-lg text-transit-muted hover:text-transit-text hover:bg-surface-hover"
+                @click="mobilePickerOpen = !mobilePickerOpen"
+              >
+                <svg
+                  class="w-4 h-4 transition-transform duration-200"
+                  :class="{ 'rotate-180': !mobilePickerOpen }"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- PROMINENT TOP PRIMARY CTA BUTTON -->
+          <div class="py-3 shrink-0 border-b border-surface-border/60">
+            <button
+              class="btn-transit w-full py-3"
+              :disabled="selectedSkills.length === 0 || matchLoading"
+              @click="findMatchedRoles"
+            >
+              <TransitLoader v-if="matchLoading" inline label="Calculating Routes..." />
+              <template v-else>
+                <svg class="w-4 h-4 text-ink shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                <span>Query Departure Board ({{ selectedSkills.length }}) →</span>
+              </template>
+            </button>
+          </div>
+
+          <!-- Scrollable Station Picker Body (Collapsible on mobile) -->
+          <div v-show="mobilePickerOpen || isDesktop" class="overflow-y-auto scrollbar-thin pt-3 pr-1 flex-1">
+            <!-- Loading state -->
+            <div v-if="loading" class="space-y-3">
+              <div v-for="i in 4" :key="i" class="h-10 bg-surface-hover rounded-xl animate-pulse" />
+            </div>
+
+            <!-- Error state -->
+            <div v-else-if="error" class="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-center">
+              <p class="font-mono text-xs text-red-400 mb-2">{{ error }}</p>
+              <button class="btn-transit text-xs" @click="loadSkills">Retry</button>
+            </div>
+
+            <!-- SkillPicker component -->
+            <div v-else>
+              <SkillPicker
+                v-model="selectedSkills"
+                :grouped-skills="skillCategories"
+              />
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Match error -->
-        <div v-else-if="matchError" class="glass-card p-8 text-center">
-          <div class="w-14 h-14 rounded-2xl bg-red-500/20 flex items-center justify-center mx-auto mb-4">
-            <svg class="w-7 h-7 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+      <!-- Right: Departure Board Matched Roles -->
+      <div class="lg:col-span-8 space-y-4">
+        <!-- Departure Board Header -->
+        <div class="flex items-center justify-between border-b border-surface-border pb-3 font-mono">
+          <div>
+            <h2 class="font-display font-bold text-xl text-transit-text tracking-tight flex items-center gap-2">
+              DEPARTURE BOARD
+              <span class="text-xs bg-surface-border px-2 py-0.5 rounded text-transit-gold">Role Readiness</span>
+            </h2>
+            <p class="text-xs text-transit-muted mt-0.5">
+              Ranked by graph distance from selected stations
+            </p>
+          </div>
+          <span v-if="matchedRoles" class="text-xs text-transit-gold font-semibold">
+            {{ matchedRoles.length }} ROLES LISTED
+          </span>
+        </div>
+
+        <!-- Initial Empty State -->
+        <div
+          v-if="selectedSkills.length === 0 && !matchedRoles"
+          class="transit-card p-10 text-center font-mono space-y-3"
+        >
+          <div class="w-12 h-12 rounded-xl bg-transit-gold/10 border border-transit-gold/30 flex items-center justify-center mx-auto text-transit-gold">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
             </svg>
           </div>
-          <h3 class="font-semibold text-surface-200 mb-2">Failed to find roles</h3>
-          <p class="text-sm text-surface-400 mb-4">{{ matchError }}</p>
-          <button class="btn-primary" @click="findMatchedRoles">Try Again</button>
+          <h3 class="font-display font-bold text-transit-text text-base">NO STATIONS SELECTED</h3>
+          <p class="text-xs text-transit-muted max-w-sm mx-auto">
+            Select your known skill stations from the station picker on the left, then click "Query Departure Board".
+          </p>
         </div>
 
-        <!-- Matched roles results -->
-        <div v-else-if="matchedRoles" class="space-y-3">
-          <div class="flex items-center justify-between mb-2">
-            <h2 class="section-title">
-              Matched Roles
-              <span class="text-surface-500 font-normal text-sm ml-2">
-                {{ matchedRoles.length }} roles
-              </span>
-            </h2>
-            <div class="flex items-center gap-2">
-              <span class="text-xs text-surface-500">Based on {{ selectedSkills.length }} skills</span>
-            </div>
-          </div>
+        <!-- Loading State -->
+        <div v-else-if="matchLoading" class="py-4">
+          <TransitLoader label="CALCULATING ROLE READINESS DEPARTURES..." />
+        </div>
 
+        <!-- Error State -->
+        <div v-else-if="matchError" class="p-6 transit-card border-red-500/40 text-center font-mono">
+          <p class="text-sm text-red-400 mb-3">{{ matchError }}</p>
+          <button class="btn-transit text-xs" @click="findMatchedRoles">Retry Query</button>
+        </div>
+
+        <!-- Matched Roles Departure Rows -->
+        <div v-else-if="matchedRoles" class="space-y-3">
           <TransitionGroup
             enter-active-class="transition-all duration-300 ease-out"
             enter-from-class="opacity-0 translate-y-3"
             enter-to-class="opacity-100 translate-y-0"
-            leave-active-class="transition-all duration-200 ease-in"
-            leave-from-class="opacity-100"
-            leave-to-class="opacity-0"
           >
             <RoleCard
               v-for="role in matchedRoles"
@@ -157,18 +205,18 @@ import type { MatchedRole, Skill } from "~/composables/useApi";
 
 const { fetchSkills, getMatchedRoles } = useApi();
 
-// Skills data
+const mobilePickerOpen = ref(true);
+const isDesktop = ref(false);
 const loading = ref(true);
 const error = ref<string | null>(null);
 const skillCategories = ref<Record<string, Skill[]>>({});
 
-// Selection state
 const selectedSkills = ref<string[]>([]);
-
-// Matched roles
 const matchLoading = ref(false);
 const matchError = ref<string | null>(null);
 const matchedRoles = ref<MatchedRole[] | null>(null);
+
+let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
 async function loadSkills() {
   loading.value = true;
@@ -177,14 +225,17 @@ async function loadSkills() {
     const data = await fetchSkills();
     skillCategories.value = data.categories;
   } catch (err) {
-    error.value = err instanceof Error ? err.message : "Failed to connect to API";
+    error.value = err instanceof Error ? err.message : "Failed to load skills";
   } finally {
     loading.value = false;
   }
 }
 
 async function findMatchedRoles() {
-  if (selectedSkills.value.length === 0) return;
+  if (selectedSkills.value.length === 0) {
+    matchedRoles.value = null;
+    return;
+  }
 
   matchLoading.value = true;
   matchError.value = null;
@@ -192,11 +243,30 @@ async function findMatchedRoles() {
     const data = await getMatchedRoles(selectedSkills.value);
     matchedRoles.value = data.roles;
   } catch (err) {
-    matchError.value = err instanceof Error ? err.message : "Failed to find matching roles";
+    matchError.value = err instanceof Error ? err.message : "Failed to calculate role routes";
   } finally {
     matchLoading.value = false;
   }
 }
 
-onMounted(loadSkills);
+// Auto-trigger route query on station selection changes (debounced 400ms)
+watch(selectedSkills, (newSkills) => {
+  if (debounceTimer) clearTimeout(debounceTimer);
+
+  if (newSkills.length === 0) {
+    matchedRoles.value = null;
+    return;
+  }
+
+  debounceTimer = setTimeout(() => {
+    findMatchedRoles();
+  }, 400);
+});
+
+onMounted(() => {
+  if (typeof window !== "undefined") {
+    isDesktop.value = window.innerWidth >= 1024;
+  }
+  loadSkills();
+});
 </script>

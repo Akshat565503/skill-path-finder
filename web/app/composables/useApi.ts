@@ -21,14 +21,14 @@ interface PathResponse {
   from: string;
   to: string;
   path: PathNode[];
-  hops: number | { low: number; high: number };
+  hops: number;
   relationships: string[];
   message?: string;
 }
 
 interface NearbySkill {
   name: string;
-  hopsAway: number | { low: number; high: number } | null;
+  hopsAway: number | null;
 }
 
 interface MatchedRole {

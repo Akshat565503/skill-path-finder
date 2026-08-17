@@ -15,138 +15,225 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   scroll-behavior: smooth;
+  background-color: #12141C;
+  color: #EDEEF2;
 }
 
 body {
-  background-color: #020617;
-  color: #f1f5f9;
+  background-color: #12141C;
+  color: #EDEEF2;
   min-height: 100vh;
-  background-image: radial-gradient(
-    ellipse 80% 50% at 50% -20%,
-    rgba(99, 102, 241, 0.08),
-    transparent
-  );
+  background-image: 
+    radial-gradient(circle at 15% 15%, rgba(90, 200, 250, 0.04), transparent 40%),
+    radial-gradient(circle at 85% 85%, rgba(242, 184, 75, 0.04), transparent 40%),
+    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
 }
 
+/* Headings font */
+h1, h2, h3, h4, .font-display {
+  font-family: "Space Grotesk", sans-serif;
+}
+
+/* Monospace labels & code */
+code, pre, .font-mono, .station-label, .departure-text {
+  font-family: "IBM Plex Mono", monospace;
+}
+
+/* Accessible focus ring for keyboard navigation */
 :focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.5);
+  box-shadow: 0 0 0 3px #F2B84B, 0 0 0 6px #12141C;
+  border-radius: 8px;
 }
 
+/* Selection */
 ::selection {
-  background-color: rgba(99, 102, 241, 0.3);
-  color: white;
+  background-color: rgba(242, 184, 75, 0.3);
+  color: #EDEEF2;
 }
 
 @layer components {
-  /* Glass card */
-  .glass-card {
-    @apply bg-surface-800/40 backdrop-blur-xl border border-surface-700/50 rounded-2xl;
+  /* Transit Card Container */
+  .transit-card {
+    background-color: #1B1E2A;
+    border: 1px solid #2A2E3F;
+    border-radius: 1rem;
+    box-shadow: 0 4px 20px -2px rgba(18, 20, 28, 0.5);
   }
 
-  /* Subtle glow border on hover */
-  .glow-border {
-    @apply transition-shadow duration-300;
+  .transit-card-hover {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  .glow-border:hover {
-    @apply shadow-glow;
-  }
-
-  /* Accent glow border on hover */
-  .glow-border-accent {
-    @apply transition-shadow duration-300;
-  }
-  .glow-border-accent:hover {
-    @apply shadow-glow-accent;
+  .transit-card-hover:hover {
+    border-color: #3E445B;
+    transform: translateY(-1px);
   }
 
-  /* Button styles */
-  .btn-primary {
-    @apply inline-flex items-center justify-center gap-2
-           px-5 py-2.5 rounded-xl
-           bg-primary-600 hover:bg-primary-500
-           text-white font-medium text-sm
-           transition-all duration-200
-           hover:shadow-glow active:scale-[0.98]
-           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none;
+  /* Departure Board Row */
+  .departure-row {
+    font-family: "IBM Plex Mono", monospace;
+    background-color: rgba(27, 30, 42, 0.7);
+    border: 1px solid #2A2E3F;
+    border-radius: 0.75rem;
+    transition: all 0.2s ease;
+  }
+  .departure-row:hover {
+    border-color: #F2B84B;
+    background-color: rgba(36, 40, 56, 0.9);
   }
 
-  .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2
-           px-5 py-2.5 rounded-xl
-           bg-surface-700/60 hover:bg-surface-700
-           text-surface-200 font-medium text-sm
-           border border-surface-600/50 hover:border-surface-500
-           transition-all duration-200
-           active:scale-[0.98]
-           disabled:opacity-50 disabled:cursor-not-allowed;
+  /* Redesigned Primary Transit Action Button */
+  .btn-transit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.875rem;
+    background: linear-gradient(135deg, #F2B84B 0%, #FACC15 100%);
+    color: #12141C;
+    font-family: "Space Grotesk", sans-serif;
+    font-weight: 700;
+    font-size: 0.9375rem;
+    letter-spacing: -0.01em;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 14px rgba(242, 184, 75, 0.35);
+    border: 1px solid #FDE047;
+    cursor: pointer;
+    user-select: none;
+  }
+  .btn-transit:hover:not(:disabled) {
+    background: linear-gradient(135deg, #FACC15 0%, #FEF08A 100%);
+    box-shadow: 0 0 20px rgba(242, 184, 75, 0.6);
+    transform: translateY(-2px) scale(1.01);
+  }
+  .btn-transit:active:not(:disabled) {
+    transform: translateY(0) scale(0.99);
+    box-shadow: 0 2px 8px rgba(242, 184, 75, 0.4);
+  }
+  .btn-transit:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    box-shadow: none;
+    background: #2A2E3F;
+    color: #8B8FA3;
+    border-color: #3E445B;
   }
 
-  .btn-accent {
-    @apply inline-flex items-center justify-center gap-2
-           px-5 py-2.5 rounded-xl
-           bg-accent-600 hover:bg-accent-500
-           text-white font-medium text-sm
-           transition-all duration-200
-           hover:shadow-glow-accent active:scale-[0.98]
-           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none;
+  /* Redesigned Secondary Transit Button */
+  .btn-transit-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    border-radius: 0.75rem;
+    background-color: #242838;
+    color: #EDEEF2;
+    border: 1px solid #3E445B;
+    font-family: "Space Grotesk", sans-serif;
+    font-weight: 600;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  .btn-transit-secondary:hover:not(:disabled) {
+    border-color: #F2B84B;
+    color: #F2B84B;
+    background-color: #2A2E3E;
+    transform: translateY(-1px);
+  }
+  .btn-transit-secondary:active:not(:disabled) {
+    transform: translateY(0);
   }
 
-  /* Badge / chip */
-  .skill-badge {
-    @apply inline-flex items-center gap-1.5
-           px-3 py-1 rounded-full
-           text-xs font-medium
-           bg-surface-700/60 text-surface-300
-           border border-surface-600/40
-           transition-all duration-200;
+  /* Redesigned Preset Route Pill Button */
+  .btn-preset {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.5rem;
+    background-color: #1B1E2A;
+    color: #8B8FA3;
+    border: 1px solid #2A2E3F;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  .btn-preset:hover {
+    border-color: #F2B84B;
+    color: #F2B84B;
+    background-color: rgba(242, 184, 75, 0.08);
+    transform: translateY(-1px);
   }
 
-  .skill-badge-active {
-    @apply bg-primary-600/20 text-primary-300 border-primary-500/40;
-  }
-
-  .skill-badge-known {
-    @apply bg-accent-600/20 text-accent-300 border-accent-500/40;
-  }
-
-  .skill-badge-missing {
-    @apply bg-red-600/20 text-red-300 border-red-500/40;
-  }
-
-  /* Section heading */
-  .section-title {
-    @apply text-lg font-semibold text-surface-100 tracking-tight;
-  }
-
-  .section-subtitle {
-    @apply text-sm text-surface-400;
-  }
-
-  /* Loading skeleton */
-  .skeleton {
-    @apply bg-surface-700/50 rounded-lg animate-pulse;
+  /* Station Badge Pill */
+  .station-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background-color: rgba(42, 46, 63, 0.6);
+    color: #EDEEF2;
+    border: 1px solid #2A2E3F;
   }
 }
 
-@layer utilities {
-  /* Gradient text */
-  .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-400 via-primary-300 to-accent-400;
-  }
+/* Metro Category Color Helpers */
+.color-frontend { color: #5AC8FA; }
+.bg-frontend { background-color: #5AC8FA; }
+.border-frontend { border-color: #5AC8FA; }
 
-  /* Smooth scrollbar */
-  .scrollbar-thin {
-    scrollbar-width: thin;
-    scrollbar-color: theme("colors.surface.600") transparent;
+.color-backend { color: #34D399; }
+.bg-backend { background-color: #34D399; }
+.border-backend { border-color: #34D399; }
+
+.color-cloud { color: #A78BFA; }
+.bg-cloud { background-color: #A78BFA; }
+.border-cloud { border-color: #A78BFA; }
+
+.color-data { color: #F472B6; }
+.bg-data { background-color: #F472B6; }
+.border-data { border-color: #F472B6; }
+
+.color-devops { color: #FB923C; }
+.bg-devops { background-color: #FB923C; }
+.border-devops { border-color: #FB923C; }
+
+.color-datascience { color: #60A5FA; }
+.bg-datascience { background-color: #60A5FA; }
+.border-datascience { border-color: #60A5FA; }
+
+/* SVG Transit Line Drawing Animation */
+.transit-line-path {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: drawLine 1.5s ease-out forwards;
+}
+
+@keyframes drawLine {
+  to {
+    stroke-dashoffset: 0;
   }
-  .scrollbar-thin::-webkit-scrollbar {
-    width: 6px;
-  }
-  .scrollbar-thin::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  .scrollbar-thin::-webkit-scrollbar-thumb {
-    @apply bg-surface-600 rounded-full;
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .transit-line-path,
+  .animate-fade-in,
+  .animate-slide-up,
+  .animate-dash {
+    animation: none !important;
+    transition: none !important;
+    stroke-dashoffset: 0 !important;
   }
 }

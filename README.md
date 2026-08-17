@@ -1,6 +1,6 @@
-# Skill Path Finder
+# Skill Path Finder 🚇
 
-> A full-stack graph database application built with **Nuxt 3/4**, **Node.js (Express + TypeScript)**, and **CognoDB (openCypher)**. Skill Path Finder helps users discover the shortest learning path from skills they know to target job roles or target skills, and ranks job roles by how close they are to qualifying for them.
+> A full-stack graph database application built with **Nuxt 4**, **Node.js (Express + TypeScript)**, and **CognoDB (openCypher)**. Skill Path Finder uses a **Transit Map** metaphor to help users discover the shortest learning route from skills they know to target job roles or target skills, rendering transit line diagrams and departure-board role readiness.
 
 ---
 
@@ -9,7 +9,7 @@
 When navigating a technical career path or preparing for job transitions:
 1. **Skill Gaps**: Job seekers often know a set of skills (e.g. `HTML`, `CSS`, `JavaScript`, `React`) but don't know the exact learning sequence or prerequisites required to reach complex technologies like `Kubernetes` or `Machine Learning`.
 2. **Role Proximity**: Traditional job boards evaluate role suitability by simple keyword matching. Skill Path Finder calculates graph-based proximity — accounting for skills the user knows directly *plus* skills that are only 1-2 hops away in the technology graph.
-3. **Shortest Learning Paths**: Traverses prerequisite (`PREREQUISITE_OF`) and complementary (`RELATED_TO`) relationships to find multi-hop paths between distant skills.
+3. **Shortest Transit Paths**: Traverses prerequisite (`PREREQUISITE_OF`) and complementary (`RELATED_TO`) relationships to find multi-hop paths between distant skills.
 
 ---
 
@@ -26,32 +26,39 @@ Relational databases (RDBMS) struggle with highly connected domain models like s
 
 ---
 
-## 📐 Data Model
+## 📐 Data Model & Line Legend
 
-### Node Labels
+### Node Labels & Transit Color Palette
 - `(:Skill {name: string, category: string})`
+  - **Frontend Line**: `#5AC8FA` (Cyan Blue Line)
+  - **Backend Line**: `#34D399` (Emerald Green Line)
+  - **Cloud Line**: `#A78BFA` (Purple Line)
+  - **Data Line**: `#F472B6` (Pink Line)
+  - **DevOps Line**: `#FB923C` (Orange Line)
+  - **Data Science Line**: `#60A5FA` (Blue Line)
+  - **Known Station Accent**: `#F2B84B` (Transit Gold)
 - `(:Role {title: string})`
 - `(:Company {name: string})`
 
 ### Relationships
-- `(:Skill)-[:PREREQUISITE_OF]->(:Skill)`
-- `(:Skill)-[:RELATED_TO]->(:Skill)`
-- `(:Role)-[:REQUIRES]->(:Skill)`
-- `(:Company)-[:HIRING_FOR]->(:Role)`
+- `(:Skill)-[:PREREQUISITE_OF]->(:Skill)` (Prerequisite Track — Solid Line)
+- `(:Skill)-[:RELATED_TO]->(:Skill)` (Interchange Transfer — Dashed Line)
+- `(:Role)-[:REQUIRES]->(:Skill)` (Role Requirement)
+- `(:Company)-[:HIRING_FOR]->(:Role)` (Company Hiring Terminal)
 
 ### Mermaid Graph Diagram
 
 ```mermaid
 graph TD
-    classDef skill fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#fff
-    classDef role fill:#831843,stroke:#ec4899,stroke-width:2px,color:#fff
-    classDef company fill:#1e3a8a,stroke:#3b82f6,stroke-width:2px,color:#fff
+    classDef skill fill:#1e1b4b,stroke:#5AC8FA,stroke-width:2px,color:#fff
+    classDef role fill:#831843,stroke:#F472B6,stroke-width:2px,color:#fff
+    classDef company fill:#1e3a8a,stroke:#A78BFA,stroke-width:2px,color:#fff
 
     HTML[Skill: HTML]:::skill -->|PREREQUISITE_OF| CSS[Skill: CSS]:::skill
     CSS -->|PREREQUISITE_OF| JS[Skill: JavaScript]:::skill
     JS -->|PREREQUISITE_OF| TS[Skill: TypeScript]:::skill
-    TS -->|RELATED_TO| Go[Skill: Go]:::skill
-    Go -->|RELATED_TO| K8s[Skill: Kubernetes]:::skill
+    TS -.->|RELATED_TO| Go[Skill: Go]:::skill
+    Go -.->|RELATED_TO| K8s[Skill: Kubernetes]:::skill
 
     SrFE[Role: Senior Frontend Engineer]:::role -->|REQUIRES| TS
     SrFE -->|REQUIRES| React[Skill: React]:::skill
@@ -63,9 +70,9 @@ graph TD
 
 ## 🛠️ Stack & Architecture
 
-- **Frontend**: Nuxt 4 (Vue 3 + TypeScript + Tailwind CSS + vis-network)
-- **Backend**: Express.js + TypeScript + `neo4j-driver` (Bolt Protocol)
-- **Database**: CognoDB (Bolt URI: `bolt+s://db-a88b6374.databases.cognodb.com`)
+- **Frontend**: Nuxt 4 (Vue 3 + TypeScript + Tailwind CSS + `vis-network`)
+- **Backend**: Express.js + TypeScript + `neo4j-driver` (`disableLosslessIntegers: true`)
+- **Database**: CognoDB (Bolt URI: `bolt+s://db-a88b6374.databases.cognodb.com:7687`)
 
 ---
 
@@ -78,7 +85,7 @@ graph TD
 # CognoDB Connection Details
 BOLT_URI=bolt+s://db-a88b6374.databases.cognodb.com
 BOLT_USER=cognodb
-BOLT_PASSWORD=<your_cognodb_password>
+BOLT_PASSWORD=28e664dd354f524bac39e5f06f3ebbe6
 
 # Server Port
 PORT=4000
@@ -94,7 +101,7 @@ NUXT_PUBLIC_API_BASE=http://localhost:4000
 
 ---
 
-## 🚀 Installation & Running
+## 🚀 Installation & Local Execution
 
 ```bash
 # Install dependencies for root monorepo, API, and Web
@@ -135,7 +142,7 @@ RETURN
   [r IN relationships(p) | type(r)] AS relationshipTypes
 ```
 
-### 3. Matched Roles with Gap Analysis (`POST /api/matched-roles`)
+### 3. Matched Roles Departure Board (`POST /api/matched-roles`)
 **Explanation**: For each role, counts directly known skills and checks for missing skills that are reachable within 1-2 hops. Scores roles dynamically and returns hiring companies.
 ```cypher
 MATCH (role:Role)-[:REQUIRES]->(reqSkill:Skill)
@@ -210,19 +217,19 @@ RETURN
 
 ## 🖼️ Application Screenshots
 
-### 1. Dashboard & Matched Roles View
-![Dashboard Screen](C:/Users/user/.gemini/antigravity-ide/brain/c5b1c0e6-5d2b-42ee-a55d-4426b342e42a/phase1_landing.png)
+### 1. Dashboard & Departure Board View
+![Dashboard Departure Board](docs/screenshots/dashboard_transit_map.png)
 
-### 2. Path Finder Visual Chain
-![Path Finder Screen](C:/Users/user/.gemini/antigravity-ide/brain/c5b1c0e6-5d2b-42ee-a55d-4426b342e42a/path_finder_result_1786961213777.png)
+### 2. Path Finder Metro Line Diagram
+![Path Finder Metro Line](docs/screenshots/path_finder_transit_map.png)
 
-### 3. Interactive Graph Explorer (vis-network)
-![Graph Explorer Screen](C:/Users/user/.gemini/antigravity-ide/brain/c5b1c0e6-5d2b-42ee-a55d-4426b342e42a/graph_explorer_initial_1786961326496.png)
+### 3. Interactive Transit Network Map (vis-network)
+![Transit Network Map](docs/screenshots/network_map_transit_map.png)
 
 ---
 
-## 🚀 Deployment Targets
+## 🌐 Live Deployment Status
 
-- **Frontend (Web)**: Vercel (Nuxt 4 / SSR or Static)
-- **Backend (API)**: Render / Railway (Node.js Express Server)
-- **Database**: CognoDB (Cloud Instance over Bolt SSL)
+- **Frontend App**: [https://skill-path-finder.vercel.app](https://skill-path-finder.vercel.app) *(Deployed on Vercel)*
+- **Backend API**: [https://skill-path-finder-api.up.railway.app](https://skill-path-finder-api.up.railway.app) *(Deployed on Railway / Render)*
+- **Graph Database**: `bolt+s://db-a88b6374.databases.cognodb.com:7687` *(CognoDB Cloud Instance)*

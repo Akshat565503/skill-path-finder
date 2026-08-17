@@ -1,89 +1,103 @@
 <template>
-  <div class="glass-card glow-border overflow-hidden transition-all duration-300 hover:border-surface-600/70">
-    <!-- Header with score bar -->
-    <div class="p-5 pb-4">
-      <div class="flex items-start justify-between mb-3">
-        <div class="flex-1 min-w-0">
-          <h3 class="font-semibold text-surface-100 truncate text-base">{{ role.title }}</h3>
-          <div class="flex items-center gap-2 mt-1">
-            <span class="text-xs text-surface-500">
-              {{ role.knownCount }}/{{ role.totalRequired }} skills matched
-            </span>
+  <div class="departure-row p-4 transition-all duration-200 hover:border-transit-gold">
+    <!-- Top Row: Role Title, Category Line Dots, and Readiness Badge -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+      <!-- Role Title & Categories -->
+      <div class="flex items-center gap-3">
+        <!-- Metro Status Dot -->
+        <span
+          class="w-3 h-3 rounded-full flex-shrink-0 animate-pulse-subtle"
+          :style="{ backgroundColor: scoreColor }"
+        />
+        <div>
+          <h3 class="font-display font-bold text-transit-text text-base tracking-tight flex items-center gap-2">
+            {{ role.title }}
+          </h3>
+          <!-- Category Dots Bar -->
+          <div class="flex items-center gap-1.5 mt-1">
+            <span class="text-[10px] text-transit-muted font-mono uppercase tracking-wider">Lines:</span>
+            <span
+              v-for="cat in uniqueCategories"
+              :key="cat"
+              class="w-2.5 h-2.5 rounded-full inline-block"
+              :style="{ backgroundColor: getCategoryLineColor(cat) }"
+              :title="cat"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Departure Board Readiness Display -->
+      <div class="flex items-center gap-3 font-mono">
+        <div class="text-right">
+          <div class="text-xs font-semibold" :style="{ color: scoreColor }">
+            {{ role.knownCount }} of {{ role.totalRequired }} SKILLS MATCHED
+          </div>
+          <div class="text-[10px] text-transit-muted">
+            Direct: {{ role.directMatchPercent }}% · Score: {{ role.overallScore }}%
           </div>
         </div>
         <div
-          class="flex-shrink-0 ml-3 px-3 py-1.5 rounded-xl text-sm font-bold"
-          :class="scoreClass"
+          class="px-3 py-1.5 rounded-lg text-sm font-bold text-ink"
+          :style="{ backgroundColor: scoreColor }"
         >
           {{ role.overallScore }}%
         </div>
       </div>
-
-      <!-- Progress bar -->
-      <div class="relative h-2 rounded-full bg-surface-700/60 overflow-hidden">
-        <!-- Direct match portion -->
-        <div
-          class="absolute left-0 top-0 h-full rounded-full transition-all duration-700 ease-out"
-          :class="directBarClass"
-          :style="{ width: `${role.directMatchPercent}%` }"
-        />
-        <!-- Overall score portion (includes nearby) -->
-        <div
-          class="absolute left-0 top-0 h-full rounded-full transition-all duration-700 ease-out opacity-40"
-          :class="overallBarClass"
-          :style="{ width: `${role.overallScore}%` }"
-        />
-      </div>
-      <div class="flex items-center justify-between mt-1.5">
-        <span class="text-[10px] text-surface-500">Direct: {{ role.directMatchPercent }}%</span>
-        <span class="text-[10px] text-surface-500">With nearby: {{ role.overallScore }}%</span>
-      </div>
     </div>
 
-    <!-- Skills breakdown -->
-    <div class="px-5 pb-4 space-y-3">
-      <!-- Known skills -->
+    <!-- Readiness Progress Bar -->
+    <div class="relative h-2 rounded-full bg-ink overflow-hidden border border-surface-border mb-3">
+      <!-- Direct match portion -->
+      <div
+        class="absolute left-0 top-0 h-full rounded-full transition-all duration-700 ease-out"
+        :style="{ width: `${role.directMatchPercent}%`, backgroundColor: scoreColor }"
+      />
+      <!-- Overall match portion (includes nearby) -->
+      <div
+        class="absolute left-0 top-0 h-full rounded-full transition-all duration-700 ease-out opacity-30"
+        :style="{ width: `${role.overallScore}%`, backgroundColor: scoreColor }"
+      />
+    </div>
+
+    <!-- Station Skills Breakdown -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs font-mono pt-1">
+      <!-- Known Skills -->
       <div v-if="role.knownSkills.length > 0">
-        <span class="text-[10px] uppercase tracking-wider text-surface-500 font-medium">Known</span>
-        <div class="flex flex-wrap gap-1.5 mt-1.5">
+        <span class="text-[10px] uppercase text-transit-muted tracking-wider block mb-1">✓ Known Stations</span>
+        <div class="flex flex-wrap gap-1">
           <span
             v-for="skill in role.knownSkills"
             :key="skill"
-            class="skill-badge skill-badge-known"
+            class="px-2 py-0.5 rounded text-[11px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
           >
-            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-            </svg>
             {{ skill }}
           </span>
         </div>
       </div>
 
-      <!-- Nearby skills (within 1-2 hops) -->
+      <!-- Nearby Skills (1-2 hops) -->
       <div v-if="role.nearbySkills.length > 0">
-        <span class="text-[10px] uppercase tracking-wider text-surface-500 font-medium">Nearby (1-2 hops)</span>
-        <div class="flex flex-wrap gap-1.5 mt-1.5">
+        <span class="text-[10px] uppercase text-transit-muted tracking-wider block mb-1">⚡ Nearby Connections (1-2 Hops)</span>
+        <div class="flex flex-wrap gap-1">
           <span
             v-for="ns in role.nearbySkills"
             :key="ns.name"
-            class="skill-badge bg-yellow-500/10 text-yellow-300 border-yellow-500/30"
+            class="px-2 py-0.5 rounded text-[11px] bg-transit-gold/10 text-transit-gold border border-transit-gold/30"
           >
-            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-            </svg>
             {{ ns.name }}
           </span>
         </div>
       </div>
 
-      <!-- Missing skills -->
+      <!-- Missing Skills -->
       <div v-if="role.missingSkills.length > 0">
-        <span class="text-[10px] uppercase tracking-wider text-surface-500 font-medium">Missing</span>
-        <div class="flex flex-wrap gap-1.5 mt-1.5">
+        <span class="text-[10px] uppercase text-transit-muted tracking-wider block mb-1">✕ Missing Stations</span>
+        <div class="flex flex-wrap gap-1">
           <span
             v-for="skill in role.missingSkills"
             :key="skill"
-            class="skill-badge skill-badge-missing"
+            class="px-2 py-0.5 rounded text-[11px] bg-red-500/10 text-red-400 border border-red-500/20"
           >
             {{ skill }}
           </span>
@@ -91,19 +105,15 @@
       </div>
     </div>
 
-    <!-- Footer: companies -->
-    <div
-      v-if="role.hiringCompanies.length > 0"
-      class="px-5 py-3 border-t border-surface-700/40 bg-surface-800/20"
-    >
-      <div class="flex items-center gap-2">
-        <svg class="w-3.5 h-3.5 text-surface-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <!-- Footer: Hiring Companies -->
+    <div v-if="role.hiringCompanies.length > 0" class="mt-3 pt-2.5 border-t border-surface-border/60 flex items-center justify-between text-[11px] font-mono text-transit-muted">
+      <span class="flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5 text-transit-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
         </svg>
-        <span class="text-xs text-surface-400 truncate">
-          {{ role.hiringCompanies.join(" · ") }}
-        </span>
-      </div>
+        Hiring Terminal:
+      </span>
+      <span class="text-transit-text font-medium">{{ role.hiringCompanies.join(" · ") }}</span>
     </div>
   </div>
 </template>
@@ -115,24 +125,40 @@ const props = defineProps<{
   role: MatchedRole;
 }>();
 
-const scoreClass = computed(() => {
-  const score = props.role.overallScore;
-  if (score >= 70) return "bg-accent-500/20 text-accent-300";
-  if (score >= 40) return "bg-yellow-500/20 text-yellow-300";
-  return "bg-surface-700/60 text-surface-400";
+const lineColors: Record<string, string> = {
+  Frontend: "#5AC8FA",
+  Backend: "#34D399",
+  Cloud: "#A78BFA",
+  Data: "#F472B6",
+  DevOps: "#FB923C",
+  "Data Science": "#60A5FA",
+};
+
+function getCategoryLineColor(category: string): string {
+  return lineColors[category] || "#F2B84B";
+}
+
+// Estimate unique categories based on skill names (simple heuristic lookup)
+const uniqueCategories = computed(() => {
+  const categories = new Set<string>();
+  const allSkills = [...props.role.knownSkills, ...props.role.missingSkills, ...props.role.nearbySkills.map(n => n.name)];
+
+  allSkills.forEach(skill => {
+    if (["HTML", "CSS", "JavaScript", "TypeScript", "React", "Vue.js", "Next.js", "Tailwind CSS"].includes(skill)) categories.add("Frontend");
+    else if (["Node.js", "Express.js", "Python", "Django", "FastAPI", "Go", "REST APIs", "GraphQL"].includes(skill)) categories.add("Backend");
+    else if (["AWS", "Google Cloud", "Azure", "Docker", "Kubernetes", "Terraform", "Serverless"].includes(skill)) categories.add("Cloud");
+    else if (["SQL", "PostgreSQL", "MongoDB", "Redis", "Neo4j", "Apache Kafka", "Data Modeling"].includes(skill)) categories.add("Data");
+    else if (["Git", "CI/CD", "Linux", "Nginx", "Monitoring"].includes(skill)) categories.add("DevOps");
+    else if (["Machine Learning", "Deep Learning", "Pandas", "TensorFlow", "NLP"].includes(skill)) categories.add("Data Science");
+  });
+
+  return Array.from(categories);
 });
 
-const directBarClass = computed(() => {
+const scoreColor = computed(() => {
   const score = props.role.overallScore;
-  if (score >= 70) return "bg-accent-500";
-  if (score >= 40) return "bg-yellow-500";
-  return "bg-surface-500";
-});
-
-const overallBarClass = computed(() => {
-  const score = props.role.overallScore;
-  if (score >= 70) return "bg-accent-400";
-  if (score >= 40) return "bg-yellow-400";
-  return "bg-surface-400";
+  if (score >= 70) return "#34D399"; // Emerald
+  if (score >= 40) return "#F2B84B"; // Gold
+  return "#8B8FA3"; // Muted
 });
 </script>

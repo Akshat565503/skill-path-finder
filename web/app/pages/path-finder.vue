@@ -1,192 +1,168 @@
 <template>
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Hero -->
-    <div class="text-center mb-10 animate-fade-in">
-      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">
-        <span class="text-gradient">Path Finder</span>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <!-- Hero Header -->
+    <div class="text-center space-y-2">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-transit-gold/10 border border-transit-gold/30 text-transit-gold font-mono text-xs">
+        <span>ROUTE FINDER ENGINE</span>
+      </div>
+      <h1 class="font-display font-extrabold text-3xl sm:text-4xl text-transit-text tracking-tight">
+        Shortest Path Transit Router
       </h1>
-      <p class="text-surface-400 max-w-xl mx-auto">
-        Discover the shortest learning path between any two skills in the graph.
+      <p class="text-transit-muted text-sm max-w-xl mx-auto font-sans">
+        Select an origin station and a destination station to compute the shortest multi-hop transit line across prerequisite tracks and interchange connections.
       </p>
     </div>
 
-    <!-- Loading skills -->
-    <div v-if="loading" class="glass-card p-6">
-      <div class="skeleton h-6 w-48 mb-4" />
-      <div class="flex gap-4">
-        <div class="skeleton h-10 flex-1 rounded-xl" />
-        <div class="skeleton h-10 flex-1 rounded-xl" />
-        <div class="skeleton h-10 w-32 rounded-xl" />
-      </div>
-    </div>
+    <!-- Station Route Selection Box -->
+    <div class="transit-card p-6 space-y-4">
+      <h2 class="font-display font-bold text-lg text-transit-text tracking-tight flex items-center gap-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-transit-gold"></span>
+        Select Origin & Destination Stations
+      </h2>
 
-    <!-- Error loading skills -->
-    <div v-else-if="error" class="glass-card p-8 text-center">
-      <div class="w-14 h-14 rounded-2xl bg-red-500/20 flex items-center justify-center mx-auto mb-4">
-        <svg class="w-7 h-7 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-        </svg>
-      </div>
-      <h3 class="font-semibold text-surface-200 mb-2">Unable to load skills</h3>
-      <p class="text-sm text-surface-400 mb-4">{{ error }}</p>
-      <button class="btn-primary" @click="loadSkills">Try Again</button>
-    </div>
-
-    <!-- Main content -->
-    <div v-else class="space-y-8">
-      <!-- Skill selector -->
-      <div class="glass-card p-6">
-        <h2 class="section-title mb-4">Select Skills</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <!-- From skill -->
-          <div>
-            <label class="block text-xs text-surface-500 mb-2 uppercase tracking-wider font-medium">From (skill you know)</label>
-            <div class="relative">
-              <select
-                v-model="fromSkill"
-                class="w-full bg-surface-800/60 border border-surface-600/50 rounded-xl px-4 py-2.5 text-sm text-surface-200 appearance-none cursor-pointer hover:border-surface-500 focus:border-primary-500 focus:ring-1 focus:ring-primary-500/50 transition-all"
-              >
-                <option value="" disabled>Choose a skill...</option>
-                <optgroup v-for="(skills, category) in allSkills" :key="category" :label="category">
-                  <option
-                    v-for="skill in skills"
-                    :key="skill.name"
-                    :value="skill.name"
-                    :disabled="skill.name === toSkill"
-                  >
-                    {{ skill.name }}
-                  </option>
-                </optgroup>
-              </select>
-              <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
-          </div>
-
-          <!-- To skill -->
-          <div>
-            <label class="block text-xs text-surface-500 mb-2 uppercase tracking-wider font-medium">To (target skill)</label>
-            <div class="relative">
-              <select
-                v-model="toSkill"
-                class="w-full bg-surface-800/60 border border-surface-600/50 rounded-xl px-4 py-2.5 text-sm text-surface-200 appearance-none cursor-pointer hover:border-surface-500 focus:border-primary-500 focus:ring-1 focus:ring-primary-500/50 transition-all"
-              >
-                <option value="" disabled>Choose a skill...</option>
-                <optgroup v-for="(skills, category) in allSkills" :key="category" :label="category">
-                  <option
-                    v-for="skill in skills"
-                    :key="skill.name"
-                    :value="skill.name"
-                    :disabled="skill.name === fromSkill"
-                  >
-                    {{ skill.name }}
-                  </option>
-                </optgroup>
-              </select>
-              <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
-          </div>
-
-          <!-- Find Path button -->
-          <div class="flex items-end">
-            <button
-              class="btn-accent w-full"
-              :disabled="!fromSkill || !toSkill || pathLoading"
-              @click="findPathHandler"
+      <!-- Form Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 font-mono text-xs">
+        <!-- Origin Station -->
+        <div>
+          <label class="block text-transit-muted uppercase tracking-wider mb-2 font-semibold">Origin Station (From)</label>
+          <div class="relative">
+            <select
+              v-model="fromSkill"
+              class="w-full bg-ink border border-surface-border rounded-xl px-4 py-2.5 text-transit-text appearance-none cursor-pointer hover:border-transit-gold/50 focus:border-transit-gold transition-all"
             >
-              <svg v-if="pathLoading" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-              </svg>
-              <span v-if="pathLoading">Searching...</span>
-              <span v-else>Find Path</span>
-            </button>
+              <option value="" disabled>Select origin station...</option>
+              <optgroup v-for="(skills, category) in allSkills" :key="category" :label="`${category} Line`">
+                <option
+                  v-for="skill in skills"
+                  :key="skill.name"
+                  :value="skill.name"
+                  :disabled="skill.name === toSkill"
+                >
+                  {{ skill.name }}
+                </option>
+              </optgroup>
+            </select>
+            <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-transit-muted pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
           </div>
         </div>
 
-        <!-- Quick presets -->
-        <div class="mt-4 flex flex-wrap gap-2">
-          <span class="text-xs text-surface-500 py-1">Try:</span>
+        <!-- Destination Station -->
+        <div>
+          <label class="block text-transit-muted uppercase tracking-wider mb-2 font-semibold">Destination Station (To)</label>
+          <div class="relative">
+            <select
+              v-model="toSkill"
+              class="w-full bg-ink border border-surface-border rounded-xl px-4 py-2.5 text-transit-text appearance-none cursor-pointer hover:border-transit-gold/50 focus:border-transit-gold transition-all"
+            >
+              <option value="" disabled>Select target station...</option>
+              <optgroup v-for="(skills, category) in allSkills" :key="category" :label="`${category} Line`">
+                <option
+                  v-for="skill in skills"
+                  :key="skill.name"
+                  :value="skill.name"
+                  :disabled="skill.name === fromSkill"
+                >
+                  {{ skill.name }}
+                </option>
+              </optgroup>
+            </select>
+            <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-transit-muted pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="flex items-end gap-2">
+          <!-- Swap Stations Button -->
           <button
-            v-for="preset in presets"
-            :key="`${preset.from}-${preset.to}`"
-            class="text-xs px-3 py-1 rounded-full bg-surface-800/60 text-surface-400 border border-surface-700/50 hover:border-surface-500 hover:text-surface-200 transition-all cursor-pointer"
-            @click="fromSkill = preset.from; toSkill = preset.to; findPathHandler()"
+            class="btn-transit-secondary p-2.5 shrink-0"
+            title="Swap Origin & Destination"
+            :disabled="!fromSkill && !toSkill"
+            @click="const tmp = fromSkill; fromSkill = toSkill; toSkill = tmp;"
           >
-            {{ preset.from }} → {{ preset.to }}
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+            </svg>
+          </button>
+          
+          <button
+            class="btn-transit w-full py-2.5"
+            :disabled="!fromSkill || !toSkill || pathLoading"
+            @click="findPathHandler"
+          >
+            <TransitLoader v-if="pathLoading" inline label="Calculating Route..." />
+            <template v-else>
+              <svg class="w-4 h-4 text-ink shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              <span>Compute Transit Route →</span>
+            </template>
           </button>
         </div>
       </div>
 
-      <!-- Path result -->
-      <Transition
-        enter-active-class="transition-all duration-300 ease-out"
-        enter-from-class="opacity-0 translate-y-4"
-        enter-to-class="opacity-100 translate-y-0"
-      >
-        <div v-if="pathResult && !pathLoading" class="glass-card p-6">
-          <div class="flex items-center justify-between mb-5">
-            <div>
-              <h2 class="section-title">Learning Path</h2>
-              <p class="section-subtitle mt-0.5">
-                {{ formatHops(pathResult.hops) }} hops from
-                <span class="text-primary-400">{{ pathResult.from }}</span>
-                to
-                <span class="text-accent-400">{{ pathResult.to }}</span>
-              </p>
-            </div>
-            <div class="px-3 py-1.5 rounded-xl bg-accent-500/20 text-accent-300 text-sm font-bold">
-              {{ formatHops(pathResult.hops) }} hops
-            </div>
-          </div>
-
-          <!-- Path chain visualization -->
-          <PathChain
-            v-if="pathResult.path.length > 0"
-            :path="pathResult.path"
-            :relationships="pathResult.relationships"
-          />
-
-          <!-- No path found -->
-          <div v-else class="text-center py-8">
-            <div class="w-12 h-12 rounded-2xl bg-surface-700/50 flex items-center justify-center mx-auto mb-3">
-              <svg class="w-6 h-6 text-surface-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
-              </svg>
-            </div>
-            <p class="text-sm text-surface-400">{{ pathResult.message || "No path found between these skills." }}</p>
-          </div>
-        </div>
-      </Transition>
-
-      <!-- Path loading -->
-      <div v-if="pathLoading" class="glass-card p-6">
-        <div class="skeleton h-5 w-32 mb-4" />
-        <div class="flex items-center gap-3">
-          <div v-for="i in 5" :key="i" class="flex items-center gap-2">
-            <div class="skeleton h-16 w-24 rounded-xl" />
-            <div v-if="i < 5" class="skeleton h-1 w-8" />
-          </div>
-        </div>
+      <!-- Quick Preset Routes -->
+      <div class="pt-2 flex flex-wrap items-center gap-2 font-mono text-xs">
+        <span class="text-transit-muted font-semibold">Popular Express Routes:</span>
+        <button
+          v-for="preset in presets"
+          :key="`${preset.from}-${preset.to}`"
+          class="btn-preset"
+          @click="fromSkill = preset.from; toSkill = preset.to; findPathHandler()"
+        >
+          <span>{{ preset.from }}</span>
+          <span class="text-transit-gold">→</span>
+          <span>{{ preset.to }}</span>
+        </button>
       </div>
+    </div>
 
-      <!-- Path error -->
-      <div v-if="pathError" class="glass-card p-6 border-red-500/30">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center flex-shrink-0">
-            <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01" />
-            </svg>
-          </div>
+    <!-- Shortest Path Route Results -->
+    <Transition
+      enter-active-class="transition-all duration-300 ease-out"
+      enter-from-class="opacity-0 translate-y-4"
+      enter-to-class="opacity-100 translate-y-0"
+    >
+      <div v-if="pathResult && !pathLoading" class="transit-card p-6 space-y-4">
+        <!-- Result Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-surface-border pb-4 font-mono">
           <div>
-            <h3 class="font-medium text-surface-200 text-sm">Path search failed</h3>
-            <p class="text-xs text-surface-400">{{ pathError }}</p>
+            <span class="text-xs text-transit-gold font-semibold uppercase tracking-wider block">Route Computed</span>
+            <h2 class="font-display font-bold text-xl text-transit-text">
+              {{ pathResult.from }} <span class="text-transit-gold">→</span> {{ pathResult.to }}
+            </h2>
+          </div>
+          <div class="px-3 py-1.5 rounded-xl bg-transit-gold text-ink font-bold text-sm shadow-gold flex items-center gap-2 self-start sm:self-auto">
+            <span>{{ pathResult.hops }} Hops</span>
+            <span class="text-xs font-normal">({{ pathResult.path.length }} Stations)</span>
           </div>
         </div>
+
+        <!-- Metro Transit Line Diagram -->
+        <PathChain
+          v-if="pathResult.path.length > 0"
+          :path="pathResult.path"
+          :relationships="pathResult.relationships"
+        />
+
+        <!-- No Path Found -->
+        <div v-else class="text-center py-10 font-mono text-xs text-transit-muted">
+          <p>{{ pathResult.message || "No transit route connects these two stations." }}</p>
+        </div>
       </div>
+    </Transition>
+
+    <!-- Path Loading Loader -->
+    <div v-if="pathLoading" class="py-4">
+      <TransitLoader label="COMPUTING MULTI-HOP SHORTEST TRANSIT LINE..." />
+    </div>
+
+    <!-- Path Error -->
+    <div v-if="pathError" class="p-6 transit-card border-red-500/40 text-center font-mono text-xs text-red-400">
+      {{ pathError }}
     </div>
   </div>
 </template>
@@ -196,16 +172,13 @@ import type { Skill, PathResponse } from "~/composables/useApi";
 
 const { fetchSkills, findPath } = useApi();
 
-// Skills data
 const loading = ref(true);
 const error = ref<string | null>(null);
 const allSkills = ref<Record<string, Skill[]>>({});
 
-// Selection
 const fromSkill = ref("");
 const toSkill = ref("");
 
-// Path result
 const pathLoading = ref(false);
 const pathError = ref<string | null>(null);
 const pathResult = ref<PathResponse | null>(null);
@@ -225,7 +198,7 @@ async function loadSkills() {
     const data = await fetchSkills();
     allSkills.value = data.categories;
   } catch (err) {
-    error.value = err instanceof Error ? err.message : "Failed to connect to API";
+    error.value = err instanceof Error ? err.message : "Failed to load skills";
   } finally {
     loading.value = false;
   }
@@ -242,15 +215,10 @@ async function findPathHandler() {
     const data = await findPath(fromSkill.value, toSkill.value);
     pathResult.value = data;
   } catch (err) {
-    pathError.value = err instanceof Error ? err.message : "Failed to find path";
+    pathError.value = err instanceof Error ? err.message : "Failed to compute path";
   } finally {
     pathLoading.value = false;
   }
-}
-
-function formatHops(hops: number | { low: number; high: number }): number {
-  if (typeof hops === "object" && hops !== null) return hops.low;
-  return hops;
 }
 
 onMounted(loadSkills);

@@ -18,7 +18,9 @@ if (!BOLT_URI || !BOLT_USER || !BOLT_PASSWORD) {
 let driver: Driver;
 
 try {
-  driver = neo4j.driver(BOLT_URI, neo4j.auth.basic(BOLT_USER, BOLT_PASSWORD));
+  driver = neo4j.driver(BOLT_URI, neo4j.auth.basic(BOLT_USER, BOLT_PASSWORD), {
+    disableLosslessIntegers: true,
+  });
 } catch (error) {
   console.error("❌ Failed to create Neo4j driver:", error);
   process.exit(1);

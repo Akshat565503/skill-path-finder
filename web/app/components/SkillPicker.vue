@@ -1,24 +1,24 @@
 <template>
-  <div class="space-y-4">
-    <div v-for="(skills, category) in groupedSkills" :key="category">
+  <div class="space-y-3">
+    <div v-for="(skills, category) in groupedSkills" :key="category" class="rounded-xl border border-surface-border bg-surface/40 overflow-hidden">
+      <!-- Category Line Header -->
       <button
-        class="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-surface-800/40 hover:bg-surface-800/70 transition-colors group"
+        class="w-full flex items-center justify-between px-3.5 py-2.5 hover:bg-surface-hover transition-colors group"
         @click="toggleCategory(category)"
       >
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2.5">
+          <!-- Metro Line Color Indicator -->
           <div
-            class="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold"
-            :class="categoryColors[category] || 'bg-surface-700 text-surface-300'"
-          >
-            {{ categoryIcons[category] || '⚡' }}
-          </div>
-          <span class="font-medium text-surface-200 text-sm">{{ category }}</span>
-          <span class="text-xs text-surface-500">
-            {{ selectedCountForCategory(category, skills) }}/{{ skills.length }}
+            class="w-3 h-3 rounded-full flex-shrink-0"
+            :style="{ backgroundColor: getCategoryLineColor(category) }"
+          />
+          <span class="font-display font-semibold text-transit-text text-sm tracking-tight">{{ category }} Line</span>
+          <span class="font-mono text-[11px] text-transit-muted">
+            ({{ selectedCountForCategory(category, skills) }}/{{ skills.length }} stations)
           </span>
         </div>
         <svg
-          class="w-4 h-4 text-surface-500 transition-transform duration-200"
+          class="w-4 h-4 text-transit-muted transition-transform duration-200"
           :class="{ 'rotate-180': expandedCategories.has(category) }"
           fill="none"
           stroke="currentColor"
@@ -28,6 +28,7 @@
         </svg>
       </button>
 
+      <!-- Stations List -->
       <Transition
         enter-active-class="transition-all duration-200 ease-out"
         enter-from-class="opacity-0 max-h-0"
@@ -36,26 +37,20 @@
         leave-from-class="opacity-100 max-h-96"
         leave-to-class="opacity-0 max-h-0"
       >
-        <div v-if="expandedCategories.has(category)" class="overflow-hidden">
-          <div class="flex flex-wrap gap-2 px-2 pt-3 pb-1">
+        <div v-if="expandedCategories.has(category)" class="overflow-hidden border-t border-surface-border/50 bg-ink/30">
+          <div class="flex flex-wrap gap-1.5 p-3">
             <button
               v-for="skill in skills"
               :key="skill.name"
-              class="skill-badge cursor-pointer select-none"
-              :class="{
-                'skill-badge-active': modelValue.includes(skill.name),
-              }"
+              class="font-mono text-xs px-2.5 py-1.5 rounded-lg border transition-all duration-200 flex items-center gap-1.5 cursor-pointer select-none"
+              :style="getSkillBadgeStyle(skill.name, category)"
               @click="toggleSkill(skill.name)"
             >
-              <svg
-                v-if="modelValue.includes(skill.name)"
-                class="w-3.5 h-3.5 text-primary-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-              </svg>
+              <!-- Station Dot -->
+              <span
+                class="w-2 h-2 rounded-full flex-shrink-0"
+                :style="{ backgroundColor: modelValue.includes(skill.name) ? '#12141C' : getCategoryLineColor(category) }"
+              />
               <span>{{ skill.name }}</span>
             </button>
           </div>
@@ -79,38 +74,48 @@ const emit = defineEmits<{
 
 const expandedCategories = ref<Set<string>>(new Set());
 
-// Expand all categories by default on mount
 onMounted(() => {
-  Object.keys(props.groupedSkills).forEach((cat) => {
-    expandedCategories.value.add(cat);
-  });
+  Object.keys(props.groupedSkills).forEach((cat) => expandedCategories.value.add(cat));
 });
 
-// Watch for new categories
 watch(
   () => Object.keys(props.groupedSkills),
-  (keys) => {
-    keys.forEach((cat) => expandedCategories.value.add(cat));
-  }
+  (keys) => keys.forEach((cat) => expandedCategories.value.add(cat))
 );
 
-const categoryColors: Record<string, string> = {
-  Frontend: "bg-blue-500/20 text-blue-400",
-  Backend: "bg-green-500/20 text-green-400",
-  Cloud: "bg-orange-500/20 text-orange-400",
-  Data: "bg-purple-500/20 text-purple-400",
-  "Data Science": "bg-pink-500/20 text-pink-400",
-  DevOps: "bg-cyan-500/20 text-cyan-400",
+const lineColors: Record<string, string> = {
+  Frontend: "#5AC8FA",
+  Backend: "#34D399",
+  Cloud: "#A78BFA",
+  Data: "#F472B6",
+  DevOps: "#FB923C",
+  "Data Science": "#60A5FA",
 };
 
-const categoryIcons: Record<string, string> = {
-  Frontend: "🎨",
-  Backend: "⚙️",
-  Cloud: "☁️",
-  Data: "🗄️",
-  "Data Science": "🧠",
-  DevOps: "🔧",
-};
+function getCategoryLineColor(category: string): string {
+  return lineColors[category] || "#F2B84B";
+}
+
+function getSkillBadgeStyle(skillName: string, category: string) {
+  const isSelected = props.modelValue.includes(skillName);
+  const color = getCategoryLineColor(category);
+
+  if (isSelected) {
+    return {
+      backgroundColor: "#F2B84B",
+      color: "#12141C",
+      borderColor: "#F2B84B",
+      fontWeight: "600",
+      boxShadow: "0 0 10px rgba(242, 184, 75, 0.3)",
+    };
+  }
+
+  return {
+    backgroundColor: "rgba(27, 30, 42, 0.6)",
+    color: "#EDEEF2",
+    borderColor: "#2A2E3F",
+  };
+}
 
 function toggleCategory(category: string) {
   const newSet = new Set(expandedCategories.value);

@@ -110,11 +110,12 @@ router.post("/matched-roles", async (req: Request, res: Response) => {
     );
 
     const roles = result.records.map((record) => {
-      const totalRequired = toNumber(record.get("totalRequired"));
+      const totalRequired = (record.get("totalRequired") || 0) as number;
       const knownDirectly = record.get("knownDirectly") as string[];
       const nearbySkills = record.get("nearbySkills") as string[];
-      const nearbyHops = (record.get("nearbyHops") as (number | null)[]).map(h => toNumber(h));
+      const nearbyHops = record.get("nearbyHops") as (number | null)[];
       const missingSkills = record.get("missingSkills") as string[];
+      const overallScoreRaw = (record.get("overallScore") || 0) as number;
 
       return {
         title: record.get("title") as string,
@@ -127,7 +128,7 @@ router.post("/matched-roles", async (req: Request, res: Response) => {
         })),
         missingSkills,
         directMatchPercent: Math.round((knownDirectly.length / totalRequired) * 100),
-        overallScore: Math.round(toNumber(record.get("overallScore")) * 100),
+        overallScore: Math.round(overallScoreRaw * 100),
         hiringCompanies: record.get("hiringCompanies") as string[],
       };
     });
@@ -145,15 +146,5 @@ router.post("/matched-roles", async (req: Request, res: Response) => {
     await session.close();
   }
 });
-
-/**
- * Helper to safely convert Neo4j Integer or number to JS number.
- */
-function toNumber(val: unknown): number {
-  if (val === null || val === undefined) return 0;
-  if (typeof val === "number") return val;
-  if (neo4j.isInt(val)) return val.toNumber();
-  return Number(val);
-}
 
 export default router;
