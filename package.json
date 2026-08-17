@@ -1,0 +1,13 @@
+{
+  "name": "skill-path-finder",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Find the shortest learning path between skills and discover which job roles you're closest to qualifying for.",
+  "scripts": {
+    "dev:api": "cd api && npm run dev",
+    "dev:web": "cd web && npm run dev",
+    "install:all": "cd api && npm install && cd ../web && npm install",
+    "build:api": "cd api && npm run build",
+    "build:web": "cd web && npm run build"
+  }
+}
