@@ -2,6 +2,11 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import healthRouter from "./routes/health.js";
+import skillsRouter from "./routes/skills.js";
+import pathRouter from "./routes/path.js";
+import matchedRolesRouter from "./routes/matchedRoles.js";
+import rolesRouter from "./routes/roles.js";
+import graphRouter from "./routes/graph.js";
 import { closeDriver, verifyConnection } from "./db.js";
 
 // Load environment variables
@@ -21,6 +26,11 @@ app.use(express.json());
 
 // ── Routes ─────────────────────────────────────────────────
 app.use("/api", healthRouter);
+app.use("/api", skillsRouter);
+app.use("/api", pathRouter);
+app.use("/api", matchedRolesRouter);
+app.use("/api", rolesRouter);
+app.use("/api", graphRouter);
 
 // ── Root endpoint ──────────────────────────────────────────
 app.get("/", (_req, res) => {

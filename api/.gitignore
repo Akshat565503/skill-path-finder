@@ -1,6 +1,4 @@
 node_modules/
-.output/
-.nuxt/
 dist/
 .env
 .env.local

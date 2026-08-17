@@ -70,6 +70,26 @@
               </svg>
               Path Finder
             </NuxtLink>
+            <NuxtLink
+              to="/graph"
+              class="nav-link"
+              active-class="nav-link-active"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"
+                />
+              </svg>
+              Graph View
+            </NuxtLink>
           </div>
 
           <!-- Mobile Menu Button -->
@@ -129,6 +149,14 @@
               @click="mobileMenuOpen = false"
             >
               Path Finder
+            </NuxtLink>
+            <NuxtLink
+              to="/graph"
+              class="nav-link"
+              active-class="nav-link-active"
+              @click="mobileMenuOpen = false"
+            >
+              Graph View
             </NuxtLink>
           </div>
         </Transition>
