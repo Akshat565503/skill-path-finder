@@ -72,32 +72,46 @@ graph TD
 
 - **Frontend**: Nuxt 4 (Vue 3 + TypeScript + Tailwind CSS + `vis-network`)
 - **Backend**: Express.js + TypeScript + `neo4j-driver` (`disableLosslessIntegers: true`)
-- **Database**: CognoDB (Bolt URI: `bolt+s://db-a88b6374.databases.cognodb.com:7687`)
+- **Database**: CognoDB (Bolt protocol, openCypher)
 
 ---
 
 ## 🔑 Environment Setup & Connection Details
 
-1. Clone or navigate to `D:\projects\skill-path-finder`.
-2. Configure `.env` in `api/`:
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/Akshat565503/skill-path-finder.git
+cd skill-path-finder
+```
+
+### 2. Create your own CognoDB instance
+
+1. Sign up at [console.cognodb.com/signup](https://console.cognodb.com/signup) (free tier, no card required).
+2. Create a free (c0) instance and pick a region — provisions in under a minute.
+3. Copy the generated **Bolt URI** and **password** shown on instance creation. The password is shown once — save it immediately.
+
+### 3. Configure environment variables
+
+Create `api/.env` (never committed — see `.gitignore`):
 
 ```env
-# CognoDB Connection Details
-BOLT_URI=bolt+s://db-a88b6374.databases.cognodb.com
+# CognoDB Connection Details — use YOUR OWN instance credentials here
+BOLT_URI=bolt+s://your-instance-id.databases.cognodb.com
 BOLT_USER=cognodb
-BOLT_PASSWORD=28e664dd354f524bac39e5f06f3ebbe6
+BOLT_PASSWORD=your-password-here
 
 # Server Port
 PORT=4000
 ```
 
-3. Configure `.env` in `web/`:
+Create `web/.env`:
 
 ```env
 NUXT_PUBLIC_API_BASE=http://localhost:4000
 ```
 
-> **Security Note**: All `.env` files are included in `.gitignore` and must never be committed to source control. Use `.env.example` templates for deployment reference.
+> **Security Note**: `.env` files are excluded via `.gitignore` and must never be committed to source control. Use the `.env.example` templates in each folder as a reference — they contain placeholder values only.
 
 ---
 
@@ -228,8 +242,14 @@ RETURN
 
 ---
 
-## 🌐 Live Deployment Status
+## 🎥 Demo Recording
 
-- **Frontend App**: [https://skill-path-finder.vercel.app](https://skill-path-finder.vercel.app) *(Deployed on Vercel)*
-- **Backend API**: [https://skill-path-finder-api.up.railway.app](https://skill-path-finder-api.up.railway.app) *(Deployed on Railway / Render)*
-- **Graph Database**: `bolt+s://db-a88b6374.databases.cognodb.com:7687` *(CognoDB Cloud Instance)*
+[LINK TO YOUR SCREEN RECORDING — add before submitting]
+
+---
+
+## 🌐 Live Deployment
+
+- **Frontend App**: [PASTE YOUR REAL VERCEL URL HERE — confirm it loads in an incognito window before submitting]
+- **Backend API**: [PASTE YOUR REAL RAILWAY OR RENDER URL HERE — confirm which platform you actually used]
+- **Database**: CognoDB Cloud (managed graph database instance)
