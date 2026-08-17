@@ -13,6 +13,12 @@ const router = Router();
  */
 router.get("/roles/:title", async (req: Request, res: Response) => {
   const { title } = req.params;
+  if (typeof title !== "string") {
+    res.status(400).json({
+      error: "Invalid role title",
+    });
+    return;
+  }
   const decodedTitle = decodeURIComponent(title);
 
   const session = getDriver().session();
