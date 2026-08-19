@@ -2,6 +2,8 @@
 
 > A full-stack graph database application built with **Nuxt 4**, **Node.js (Express + TypeScript)**, and **CognoDB (openCypher)**. Skill Path Finder uses a **Transit Map** metaphor to help users discover the shortest learning route from skills they know to target job roles or target skills, rendering transit line diagrams and departure-board role readiness.
 
+**Live demo:** [skill-path-finder-lilac.vercel.app](https://skill-path-finder-lilac.vercel.app/) · **API:** [api-2swj.vercel.app](https://api-2swj.vercel.app/)
+
 ---
 
 ## 🎯 Use Case
@@ -231,25 +233,23 @@ RETURN
 
 ## 🖼️ Application Screenshots
 
-### 1. Dashboard & Departure Board View
-![Dashboard Departure Board](docs/screenshots/dashboard_transit_map.png)
-
-### 2. Path Finder Metro Line Diagram
-![Path Finder Metro Line](docs/screenshots/path_finder_transit_map.png)
-
-### 3. Interactive Transit Network Map (vis-network)
-![Transit Network Map](docs/screenshots/network_map_transit_map.png)
+| | |
+|---|---|
+| ![Screenshot 1](docs/screenshots/1.png) | ![Screenshot 2](docs/screenshots/2.png) |
+| ![Screenshot 3](docs/screenshots/3.png) | ![Screenshot 4](docs/screenshots/4.png) |
+| ![Screenshot 5](docs/screenshots/5.png) | ![Screenshot 6](docs/screenshots/6.png) |
 
 ---
 
 ## 🎥 Demo Recording
 
-[LINK TO YOUR SCREEN RECORDING — add before submitting]
+A short screen recording demonstrating the Departure Board, Path Finder, and Network Map is included at:
+[`docs/Screenrecording/Skill path finder recording.mp4`](docs/Screenrecording/Skill%20path%20finder%20recording.mp4)
 
 ---
 
 ## 🌐 Live Deployment
 
-- **Frontend App**: [PASTE YOUR REAL VERCEL URL HERE — confirm it loads in an incognito window before submitting]
-- **Backend API**: [PASTE YOUR REAL RAILWAY OR RENDER URL HERE — confirm which platform you actually used]
+- **Frontend App**: [https://skill-path-finder-lilac.vercel.app/](https://skill-path-finder-lilac.vercel.app/) *(Deployed on Vercel)*
+- **Backend API**: [https://api-2swj.vercel.app/](https://api-2swj.vercel.app/) *(Deployed on Vercel)*
 - **Database**: CognoDB Cloud (managed graph database instance)
